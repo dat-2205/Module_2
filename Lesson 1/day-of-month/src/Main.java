@@ -7,9 +7,10 @@ public class Main {
         System.out.println("Nhap thang ban muon: ");
         int month = sc.nextInt();
 
-        switch(month) {
+        String daysInMonth;
+        switch (month) {
             case 2:
-                System.out.println("Thang co 28 hoac 29 ngay");
+                daysInMonth = "28 or 29";
                 break;
             case 1:
             case 3:
@@ -18,14 +19,19 @@ public class Main {
             case 8:
             case 10:
             case 12:
-                System.out.println("Thang co 31 ngay");
+                daysInMonth = "31";
                 break;
             case 4:
             case 6:
             case 9:
             case 11:
-                System.out.println("Thang co 30 ngay");
+                daysInMonth = "30";
                 break;
+            default:
+                daysInMonth = "";
         }
+
+        if (!daysInMonth.equals("")) System.out.printf("The month '%d' has %s days!", month, daysInMonth);
+        else System.out.print("Invalid input!");
     }
 }
