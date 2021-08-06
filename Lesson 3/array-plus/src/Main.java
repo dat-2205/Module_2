@@ -22,19 +22,21 @@ public class Main {
     }
     public static int getSize() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter a size: ");
-        int size = sc.nextInt();
+        int size;
+        do{System.out.print("Enter a size: ");
+            size = sc.nextInt();
+            if (size > 20){
+                System.out.println("Size should not exceed 20");
+            }
+            if(size<1){
+                System.out.println("Size can't less than 1!");
+            }
+        }while(size<1 || size>20);
         return size;
     }
     public static int[] initArray(int size) {
         Scanner scanner = new Scanner(System.in);
         int[] array;
-        if (size > 20){
-            System.out.println("Size should not exceed 20");
-        }
-        if(size<1){
-            System.out.println("Size can't less than 1!");
-        }
         array = new int[size];
         int i = 0;
         while (i < array.length) {
