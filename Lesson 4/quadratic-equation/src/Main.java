@@ -12,7 +12,7 @@ public class Main {
             System.out.println("Enter a: ");
             a = sc.nextDouble();
             if(a==0){
-                System.out.println("a is illegal");
+                System.out.println("A is illegal");
             }
         }while(!checkArgument(a));
         System.out.println("Enter b: ");
