@@ -2,8 +2,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-            checkIsPrime(getNumber());
-            checkAnother();
+        int num;
+        do {
+            num = getNumber();
+            checkIsPrime(num);
+        }while(num != 0);
 
     }
     public static int getNumber() {
@@ -26,26 +29,26 @@ public class Main {
                 }
             }
             if(isPrime){
-                System.out.printf("%d is a prime!",num);
+                System.out.printf("%d is a prime!\n",num);
             }else{
-                System.out.printf("%d is not a prime!",num);
+                System.out.printf("%d is not a prime!\n",num);
             }
         }
 
     }
-    public static void checkAnother() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Read another number? Y/N?");
-        char response = sc.next().charAt(0);
-        switch (response) {
-            case 'y':
-                checkIsPrime(getNumber());
-                checkAnother();
-                break;
-            case 'n':
-                return;
-            default:
-                checkAnother();
-        }
-    }
+//    public static void checkAnother() {
+//        Scanner sc = new Scanner(System.in);
+//        System.out.println("Read another number? Y/N?");
+//        char response = sc.next().charAt(0);
+//        switch (response) {
+//            case 'y':
+//                checkIsPrime(getNumber());
+//                checkAnother();
+//                break;
+//            case 'n':
+//                return;
+//            default:
+//                checkAnother();
+//        }
+//    }
 }

@@ -1,0 +1,18 @@
+Khai báo biến: Kiểu dữ liệu + Tên = giá trị;
+	+ Khai báo hằng: final + kiểu + tên = giá trị;
+
+-Câu lệnh if: if(condition) {câu lệnh} else {câu lệnh} tương tự js.
+
+-Câu lệnh swicth case:  tương tự js.
+
+-JVM: Tạo 1 máy ảo để chạy code.
+
+-Mức độ ưu tiên của một số phép toán thường gặp có thứ tự của chúng như sau:
+
+ +Các toán tử đơn, +, -, !, ++ và -- có độ ưu tiên cao nhất.
+
+ +Tiếp theo là các phép toán đôi *, / và %.
+
+ +Tiếp theo là các phép toán đôi +, -.
+
+ +Cuối cùng là các phép toán so sánh <, >, <=, >=. 

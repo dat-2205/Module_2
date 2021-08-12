@@ -17,7 +17,7 @@ public class Main {
         System.out.println("Enter money: ");
         money  = sc.nextInt();
 
-        System.out.print("Change from(VND,USD,YEN,NDT): ");
+        System.out.println("Change from(VND,USD,YEN,NDT): ");
         kind1 = sc.next().toLowerCase(Locale.ROOT);
         switch(kind1){
             case "vnd":
@@ -37,7 +37,7 @@ public class Main {
         }
 
 
-        System.out.print("Change to(VND,USD,YEN,NDT): ");
+        System.out.println("Change to(VND,USD,YEN,NDT): ");
         kind2 = sc.next().toLowerCase(Locale.ROOT);
 
         switch(kind2){
