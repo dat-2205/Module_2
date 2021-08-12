@@ -1,2 +1,5 @@
-package com.codegym;public interface Comparable {
+package com.codegym;
+
+public interface Comparable<ComparableCircle> {
+    int compareTo(ComparableCircle o);
 }
