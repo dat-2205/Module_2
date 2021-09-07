@@ -40,7 +40,27 @@ public class ProductMenu {
     private void menuChoiceHandle(int choice) {
         switch(choice) {
             case 1:{
-                productManagement.showAll();
+                int begin = 0;
+                int end = 5;
+                int length = productManagement.getProductList().size();
+                System.out.println(length);
+                String moveOn = "1";
+                do {
+                    showProduct(begin,end);
+                    if(end<length) {
+                        moveOn = sc.nextLine();
+                    }
+                    if(end==length) {
+                        break;
+                    }
+                    begin = begin +5;
+                    if(end<length-5){
+                        end = end + 5;
+                    }else {
+                        end = length;
+                    }
+
+                }while(end<=length);
                 break;
             }
             case 2:{
