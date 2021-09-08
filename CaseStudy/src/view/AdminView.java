@@ -1,11 +1,43 @@
 package view;
 
-import controller.ProductManagement;
-import controller.UserManagement;
+import model.Product;
+import model.User;
 
-public class AdminMenu {
-    private UserManagement userManagement = new UserManagement();
-    private ProductManagement productManagement = new ProductManagement();
+import java.util.List;
+import java.util.Scanner;
 
+public class AdminView {
+    public Scanner sc = new Scanner(System.in);
+    private List<User> userList;
+    private List<Product> productList;
 
+    public AdminView(List<User> userList, List<Product> productList) {
+        this.userList = userList;
+        this.productList = productList;
+    }
+
+    public void run() {
+        AdminUserView adminUserView = new AdminUserView(userList);
+        AdminProductView adminProductView = new AdminProductView(productList);
+        int choice;
+        do{
+            System.out.println(".....TRANG QUẢN LÝ....");
+            System.out.println("1. Quản lý tài khoản.");
+            System.out.println("2. Quản lý sản phẩm.");
+            System.out.println("0. Đăng xuất.");
+            choice = sc.nextInt();
+            sc.nextLine();
+            switch (choice) {
+                case 1:{
+                    adminUserView.run();
+                    break;
+                }
+                case 2:{
+                    adminProductView.run();
+                    break;
+                }
+            }
+        }while(choice!=0);
+
+    }
 }
