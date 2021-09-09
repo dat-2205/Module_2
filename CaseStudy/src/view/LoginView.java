@@ -1,29 +1,33 @@
 package view;
 
+import controller.ProductManagement;
+import controller.UserManagement;
 import model.Product;
 import model.User;
 
-import java.io.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginView {
    public Scanner sc = new Scanner(System.in);
    private List<User> userList = new ArrayList<>();
    private List<Product> productList = new ArrayList<>();
+   private final String PATH_USER = "user.txt";
+   private final String PATH_PRODUCT = "product.txt";
 
     public LoginView() {
-        userList.add(new User("001","dat1","dat1","admin","1/1/1000"));
-        userList.add(new User("002","dat2","dat2","customer","1/1/1000"));
     }
 
     public void run() {
-
-
        int choice;
+       readProductFromFile(PATH_PRODUCT);
+       readUserFromFile(PATH_USER);
        do{
            displayMenu();
            choice = sc.nextInt();
@@ -35,6 +39,8 @@ public class LoginView {
                }
                case 2:{
                    doRegister();
+                   UserManagement userManagement = new UserManagement(userList);
+                   userManagement.writeToFile(userManagement.getUserList(),PATH_USER);
                    break;
                }
            }
@@ -69,30 +75,9 @@ public class LoginView {
     }
 
     private void doRegister() {
-        System.out.println("....ĐĂNG KÝ....");
-        boolean isInvalid = false;
-        String username = "";
-        do{
-            System.out.println("1. Nhập tên tài khoản: ");
-            username = sc.nextLine();
-            isInvalid = checkUsername(username);
-            if(!isInvalid) {
-                System.out.println("Tên tài khoản đã được sử dụng!");
-            }
-        }while(!isInvalid);
-        System.out.println("2. Nhập mật khẩu.");
-        String password = sc.nextLine();
-        System.out.println("3. Nhập tên người dùng.");
-        String name = sc.nextLine();
-        System.out.println("4. Nhập giới tính.");
-        String sex = sc.nextLine();
-        System.out.println("5. Nhập ngày sinh.");
-        String birthday = sc.nextLine();
-        System.out.println("6. Nhập email.");
-        String email = sc.nextLine();
         String id = "00" + (userList.size()+1);
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        User user = new User(id,username,password,"customer",name,sex,birthday,email,date);
+        User user = getNewUser(id);
         userList.add(user);
         System.out.println("Đăng ký thành công!");
     }
@@ -105,6 +90,7 @@ public class LoginView {
         }
         return null;
     }
+
     public boolean checkUsername(String username) {
         for(User i: userList) {
             if(i.getUsername().equals(username)) {
@@ -113,30 +99,123 @@ public class LoginView {
         }
         return true;
     }
-    public void writeProductToFile(List<Product> productList,String path) {
-        try {
-            FileOutputStream fos = new FileOutputStream(path);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(productList);
-            oos.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+    public void readProductFromFile(String path) {
+        ProductManagement productManagement = new ProductManagement(productList);
+        List <Product> productFormFile = productManagement.readProductFromFile(path);
+            for(Product p: productFormFile) {
+                productManagement.add(p);
+            }
+    }
+
+    public void readUserFromFile(String path) {
+        UserManagement userManagement = new UserManagement(userList);
+        List <User> userListFromFile = userManagement.readFromFile(path);
+        for(User u: userListFromFile) {
+            userManagement.add(u);
         }
     }
 
-    public List<Product> readProductFromFile(String path) {
-        List<Product> readProductList = new ArrayList<>();
-        try{
-            FileInputStream fis = new FileInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            readProductList = (List<Product>) ois.readObject();
-            fis.close();
-            ois.close();
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
-        return readProductList;
+    public User getNewUser(String id) {
+        int index;
+        String username = getUserName();
+        Matcher matcher;
+        String password = getPassword();
+        String name = getNameUser();
+        String sex = getUserSex();
+        String birthday = getUserBirthDay();
+        String email = getUserEmail();
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        User user = new User(id,username,password, "customer",name,sex,birthday,email,date);
+        return user;
+    }
+
+    private String getUserEmail() {
+        Matcher matcher;
+        String email;
+        do{
+            System.out.println("Nhập email: ");
+            email = sc.nextLine();
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
+            matcher = pattern.matcher(email);
+            if(!matcher.matches()) {
+                System.err.println("Email không đúng định dạng!(abc@gmail.com.vn)");
+            }
+        }while(!matcher.matches());
+        return email;
+    }
+
+    private String getUserBirthDay() {
+        Matcher matcher ;
+        String birthday;
+        do{
+            System.out.println("Nhập ngày sinh: ");
+            birthday = sc.nextLine();
+            Pattern pattern = Pattern.compile("^\\d{1,2}[-|/]\\d{1,2}[-|/]\\d{4}$");
+            matcher = pattern.matcher(birthday);
+            if(!matcher.matches()) {
+                System.err.println("Ngày sinh không đúng định dạng!(dd/mm/yyyy)");;
+            }
+        }while(!matcher.matches());
+        return birthday;
+    }
+
+    private String getUserSex() {
+        String sex;
+        do{
+            System.out.println("Nhập giới tính: ");
+            sex = sc.nextLine();
+            if(!sex.equals("male") && !sex.equals("female")){
+                System.err.println("Giới tính là male hoặc female");
+            }
+        }while(!sex.equals("male") && !sex.equals("female"));
+        return sex;
+    }
+
+    private String getNameUser() {
+        String name;
+        do{
+            System.out.println("Nhập tên người dùng: ");
+            name = sc.nextLine();
+            if(name.equals("")) {
+                System.err.println("Bạn phải nhập tên!");
+            }
+        }while(name.equals(""));
+        return name;
+    }
+
+    private String getPassword() {
+        Matcher matcher;
+        String password ;
+        do{
+            System.out.println("Nhập mật khẩu: ");
+            password = sc.nextLine();
+            Pattern pattern = Pattern.compile("^\\w{3,}");
+            matcher = pattern.matcher(password);
+        }while(!matcher.matches());
+        return password;
+    }
+
+    private String getUserName() {
+        String username;
+        do {
+            Matcher matcher;
+            do{
+                System.out.println("Nhập tên tài khoản: ");
+                username = sc.nextLine();
+                Pattern pattern = Pattern.compile("^\\w+$");
+                matcher = pattern.matcher(username);
+                if(!matcher.matches()){
+                    System.err.println("Tên tài khoản không hợp lệ!(không chứa ký tự đặc biệt, không chứa dấu cách)");
+                }
+            }while(!matcher.matches());
+
+
+            if(!checkUsername(username)) {
+                System.err.println("Tên tài khoản đã tồn tại!");
+            }
+        }while(!checkUsername(username));
+        return username;
     }
 
 

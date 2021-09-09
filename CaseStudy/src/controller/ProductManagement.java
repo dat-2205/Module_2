@@ -3,10 +3,7 @@ package controller;
 import model.Product;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ProductManagement implements ManagementInterface<Product>{
     private List<Product> productList;
@@ -57,6 +54,7 @@ public class ProductManagement implements ManagementInterface<Product>{
             }
         }
     }
+
     public List<String> getAllKindOfProduct() {
         List<String> kindOfProduct = new ArrayList<>();
         for(Product product : productList) {
@@ -67,6 +65,7 @@ public class ProductManagement implements ManagementInterface<Product>{
         }
         return kindOfProduct;
     }
+
     public void showAllKindOfProduct() {
         List<String> kindOfProduct = getAllKindOfProduct();
         System.out.println("Danh mục các sản phẩm: ");
@@ -75,6 +74,7 @@ public class ProductManagement implements ManagementInterface<Product>{
         }
         System.out.println(".........");
     }
+
     public void showProductByKindOf(String kindOfProductToShow) {
         for(Product product : productList) {
             if(product.getKindOf().contains(kindOfProductToShow)) {
@@ -82,6 +82,7 @@ public class ProductManagement implements ManagementInterface<Product>{
             }
         }
     }
+
     public void showProductByName(String nameProductToShow) {
         for(Product product : productList) {
             if(product.getKindOf().contains(nameProductToShow)) {
@@ -89,6 +90,7 @@ public class ProductManagement implements ManagementInterface<Product>{
             }
         }
     }
+
     @Override
     public int findById(String id) {
         for (int i=0;i<productList.size();i++) {
@@ -112,7 +114,7 @@ public class ProductManagement implements ManagementInterface<Product>{
     }
 
     public List<Product> readProductFromFile(String path) {
-        List<Product> readProductList = new ArrayList<>();
+        List<Product> readProductList = null;
         try{
             FileInputStream fis = new FileInputStream(path);
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -130,9 +132,35 @@ public class ProductManagement implements ManagementInterface<Product>{
         Collections.sort(productList,p);
         showAll();
     }
+
     public void sortByProductPrice() {
         ProductPriceComparator p = new ProductPriceComparator();
         Collections.sort(productList,p);
         showAll();
+    }
+
+
+
+    public void showHotProduct() {
+        List<Product> productHot = new ArrayList<>();
+        for(Product product : productList) {
+            productHot.add(product);
+        }
+        Collections.sort(productHot, new Comparator<Product>() {
+            @Override
+            public int compare(Product o1, Product o2) {
+                if(o2.getSold() > o1.getSold()) {
+                    return 1;
+                }else if(o2.getSold() == o1.getSold()) {
+                    return 0;
+                }else  {
+                    return -1;
+                }
+            }
+        });
+        System.out.println("Danh sách sản phẩm bán chạy: ");
+        for(int i=0;i<3;i++) {
+            System.out.println(productHot.get(i));
+        }
     }
 }

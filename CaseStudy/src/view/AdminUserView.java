@@ -1,10 +1,12 @@
 package view;
 
 import controller.UserManagement;
+import model.Bill;
 import model.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -14,6 +16,7 @@ public class AdminUserView {
     private List<User> userList;
     private UserManagement userManagement;
     private Scanner sc = new Scanner(System.in);
+    private final String PATH = "user.txt";
 
     public AdminUserView(List<User> userList) {
         this.userList = userList;
@@ -40,12 +43,14 @@ public class AdminUserView {
                 String id = "00" + (userManagement.getUserList().size()+1);
                 User user = getNewUser(id);
                 userManagement.add(user);
+                userManagement.writeToFile(userList,PATH);
                 break;
             }
             case 2:{
                 System.out.println("Nhập id tài khoản muốn xoá: ");
                 String id = sc.nextLine();
                 userManagement.delete(id);
+                userManagement.writeToFile(userList,PATH);
                 break;
             }
             case 3:{
@@ -53,9 +58,17 @@ public class AdminUserView {
                 String id = sc.nextLine();
                 int index = userManagement.findById(id);
                 if(index != -1) {
-                    User user = getNewUser(id);
-                    userManagement.update(index,user);
-                    System.out.println("Thay đổi thông tin thành công");
+                    System.out.println("1. Sửa mật khẩu!");
+                    System.out.println("2. Sửa tên người sử dụng.");
+                    System.out.println("3. Sửa giới tính.");
+                    System.out.println("4. Sửa ngày sinh");
+                    System.out.println("5. Sửa email.");
+                    System.out.println("6. Sửa quyền đăng nhập.");
+                    System.out.print("Lựa chọn: ");
+                    int updateUserChoice = sc.nextInt();
+                    sc.nextLine();
+                    updateUserChoiceHandle(index, updateUserChoice);
+                    userManagement.writeToFile(userList,PATH);
                 }else {
                     System.out.println("Không tìm thấy tài khoản");
                 }
@@ -81,7 +94,103 @@ public class AdminUserView {
                 break;
             }
             case 5:{
-                userManagement.showAll();
+                System.out.println("1. Xem tất cả khách hàng.");
+                System.out.println("2. Xem tất cả quản trị viên.");
+                System.out.println("3. Xem tất cả.");
+                int showUserChoice = sc.nextInt();
+                sc.nextLine();
+                switch(showUserChoice) {
+                    case 1:{
+                        userManagement.showAllCustomer();
+                        break;
+                    }
+                    case 2:{
+                        userManagement.showAllAdmin();
+                        break;
+                    }
+                    case 3:{
+                        userManagement.showAll();
+                    }
+                }
+                break;
+            }
+            case 6:{
+                int month;
+                do{
+                    System.out.println("Nhập tháng muốn xem: ");
+                    month  = sc.nextInt();
+                    sc.nextLine();
+                    if(month<=0 || month>12) {
+                        System.err.println("Tháng không hợp lệ!");
+                    }else {
+                        break;
+                    }
+                }while(true);
+                List<User> userCreateInMonth = getUserCreateInMonth(month);
+                System.out.println("Khách hàng mới trong tháng " + month);
+                for (User u: userCreateInMonth) {
+                    System.out.println(u + "\n");
+                }
+                break;
+            }
+            case 7:{
+                User max = new User();
+                double highestUserPaid=0;
+                for (User u: userList) {
+                    double total=0;
+                    for(Bill b : u.getPaid()) {
+                        total += b.getTotalPayment();
+                    }
+                    if(total>highestUserPaid) {
+                        highestUserPaid = total;
+                        max = u;
+                    }
+                }
+                System.out.println("Id tài khoản: " + max.getId());
+                System.out.println("Tên tài khoản: " + max.getUsername());
+                System.out.println("Tên khách hàng: " + max.getName());
+                System.out.println("Tổng số tiền đã tiêu là: " + highestUserPaid);
+                break;
+            }
+        }
+    }
+
+    private void updateUserChoiceHandle(int index, int updateUserChoice) {
+        switch (updateUserChoice) {
+            case 1:{
+                String password =  getPassword();
+                userManagement.getUserList().get(index).setPassword(password);
+                System.out.println("Đã thay đổi mật khẩu!");
+                break;
+            }
+            case 2:{
+                String name =  getNameUser();
+                userManagement.getUserList().get(index).setName(name);
+                System.out.println("Đã thay đổi tên người sử dụng!");
+                break;
+            }
+            case 3:{
+                String sex =  getUserSex();
+                userManagement.getUserList().get(index).setSex(sex);
+                System.out.println("Đã thay đổi giới tính!");
+                break;
+            }
+            case 4:{
+                String birthday =  getUserBirthDay();
+                userManagement.getUserList().get(index).setBirthday(birthday);
+                System.out.println("Đã thay đổi ngày sinh!");
+                break;
+            }
+            case 5:{
+                String email =  getUserEmail();
+                userManagement.getUserList().get(index).setEmail(email);
+                System.out.println("Đã thay đổi email!");
+                break;
+            }
+            case 6: {
+                String role = getRoleUser();
+                userManagement.getUserList().get(index).setRole(role);
+                System.out.println("Đã thay đổi phân quyền!");
                 break;
             }
         }
@@ -114,6 +223,8 @@ public class AdminUserView {
         System.out.println("3. Sửa tài khoản.");
         System.out.println("4. Tìm kiếm tài khoản.");
         System.out.println("5. Xem tất cả tài khoản.");
+        System.out.println("6. Xem tài khoản đã lập trong tháng.");
+        System.out.println("7. Xem khách hàng đã tiêu nhiều nhất.");
         System.out.println("0. Đăng xuất.");
         System.out.println("Nhập lựa chọn: ");
     }
@@ -126,13 +237,41 @@ public class AdminUserView {
         String role = getRoleUser();
         String name = getNameUser();
         String sex = getUserSex();
-        System.out.println("Nhập ngày sinh: ");
-        String birthday = sc.nextLine();
-        System.out.println("Nhập email: ");
-        String email = sc.nextLine();
+        String birthday = getUserBirthDay();
+        String email = getUserEmail();
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         User user = new User(id,username,password,role,name,sex,birthday,email,date);
         return user;
+    }
+
+    private String getUserEmail() {
+        Matcher matcher;
+        String email;
+        do{
+            System.out.println("Nhập email: ");
+            email = sc.nextLine();
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
+            matcher = pattern.matcher(email);
+            if(!matcher.matches()) {
+                System.err.println("Email không đúng định dạng!(abc@gmail.com.vn)");
+            }
+        }while(!matcher.matches());
+        return email;
+    }
+
+    private String getUserBirthDay() {
+        Matcher matcher ;
+        String birthday;
+        do{
+            System.out.println("Nhập ngày sinh: ");
+            birthday = sc.nextLine();
+            Pattern pattern = Pattern.compile("^\\d{1,2}[-|/]\\d{1,2}[-|/]\\d{4}$");
+            matcher = pattern.matcher(birthday);
+            if(!matcher.matches()) {
+                System.err.println("Ngày sinh không đúng định dạng!(dd/mm/yyyy)");;
+            }
+        }while(!matcher.matches());
+        return birthday;
     }
 
     private String getUserSex() {
@@ -140,6 +279,9 @@ public class AdminUserView {
         do{
             System.out.println("Nhập giới tính: ");
             sex = sc.nextLine();
+            if(!sex.equals("male") && !sex.equals("female")){
+                System.err.println("Giới tính là male hoặc female");
+            }
         }while(!sex.equals("male") && !sex.equals("female"));
         return sex;
     }
@@ -201,5 +343,17 @@ public class AdminUserView {
             }
         }while(index>=0);
         return username;
+    }
+
+    private List<User> getUserCreateInMonth(int month) {
+        List<User> userInMonth = new ArrayList<>();
+        for(User u : userList) {
+            String m = u.getDateCreate().substring(3,5);
+            int mi = Integer.parseInt(m);
+            if(mi==month){
+                userInMonth.add(u);
+            }
+        }
+        return userInMonth;
     }
 }

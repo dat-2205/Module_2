@@ -19,11 +19,13 @@ public class AdminView {
     public void run() {
         AdminUserView adminUserView = new AdminUserView(userList);
         AdminProductView adminProductView = new AdminProductView(productList);
+        AdminRevenueView adminRevenueView = new AdminRevenueView(userList);
         int choice;
         do{
             System.out.println(".....TRANG QUẢN LÝ....");
             System.out.println("1. Quản lý tài khoản.");
             System.out.println("2. Quản lý sản phẩm.");
+            System.out.println("3. Quản lý doanh thu.");
             System.out.println("0. Đăng xuất.");
             choice = sc.nextInt();
             sc.nextLine();
@@ -34,6 +36,10 @@ public class AdminView {
                 }
                 case 2:{
                     adminProductView.run();
+                    break;
+                }
+                case 3: {
+                    adminRevenueView.run();
                     break;
                 }
             }

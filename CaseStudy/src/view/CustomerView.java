@@ -1,8 +1,7 @@
 package view;
 
-import controller.BillManagement;
+
 import controller.ProductManagement;
-import controller.UserManagement;
 import model.Bill;
 import model.BillElement;
 import model.Product;
@@ -13,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CustomerView {
     private User user;
@@ -29,7 +30,6 @@ public class CustomerView {
 
     public void run() {
         int choice;
-        getProductFromFile();
         do{
             displayMenu();
             choice = sc.nextInt();
@@ -39,12 +39,6 @@ public class CustomerView {
         productManagement.writeProductToFile(productList,PATH);
     }
 
-    private void getProductFromFile() {
-        List<Product> productListFromFile = productManagement.readProductFromFile(PATH);
-        for(Product p: productListFromFile ) {
-            productList.add(p);
-        }
-    }
 
     private void choiceHandle(int choice) {
         switch(choice) {
@@ -62,13 +56,17 @@ public class CustomerView {
                 break;
             }
             case 3:{
+                productManagement.showHotProduct();
+                break;
+            }
+            case 4:{
                 System.out.println("Nhập tên sản phẩm muốn hiển thị:");
                 String productNameToShow = sc.nextLine();
                 productManagement.showProductByName(productNameToShow);
                 wantToBuyQuetion();
                 break;
             }
-            case 4: {
+            case 5: {
                 List<BillElement> cart = user.getCart();
                 int cartChoice;
                 do{
@@ -82,7 +80,7 @@ public class CustomerView {
                 }while(cartChoice!=0);
                 break;
             }
-            case 5: {
+            case 6: {
                 List<BillElement> billElements =  user.getCartValue();
                 String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 double totalPayment=0;
@@ -90,8 +88,9 @@ public class CustomerView {
                     double price = i.getProduct().getPrice();
                     int quantity = i.getQuantity();
                     int index = productManagement.findById(i.getProduct().getId());
-                    int inStock = productManagement.getProductList().get(index).getInStock();
-                    productManagement.getProductList().get(index).setInStock(inStock-quantity);
+                    changeSoldProduct(index,quantity);
+//                    int inStock = productManagement.getProductList().get(index).getInStock();
+//                    productManagement.getProductList().get(index).setInStock(inStock-quantity);
                     totalPayment += price*quantity;
                 }
                 String user = this.user.getName();
@@ -104,8 +103,46 @@ public class CustomerView {
                 System.out.println("Hàng sẽ được ship tới chỗ bạn!");
                 break;
             }
-            case 6: {
+            case 7: {
                 System.out.println(user.getBillToString());
+                break;
+            }
+            case 8:{
+                int updateAccountChoice;
+                System.out.println("1. Sửa mật khẩu.");
+                System.out.println("2. Sửa tên người dùng.");
+                System.out.println("3. Sửa  ngày sinh.");
+                System.out.println("4. Sửa email.");
+                System.out.println("5. Sửa giới tính.");
+                System.out.print("Lựa chọn.");
+                updateAccountChoice = sc.nextInt();
+                switch(updateAccountChoice) {
+                    case 1: {
+                        String password = getPassword();
+                        user.setPassword(password);
+                        break;
+                    }
+                    case 2:{
+                        String name = getNameUser();
+                        user.setName(name);
+                        break;
+                    }
+                    case 3:{
+                        String birthday = getUserBirthDay();
+                        user.setBirthday(birthday);
+                        break;
+                    }
+                    case 4:{
+                        String email = getUserEmail();
+                        user.setEmail(email);
+                        break;
+                    }
+                    case 5:{
+                        String sex = getUserSex();
+                        user.setPassword(sex);
+                        break;
+                    }
+                }
                 break;
             }
         }
@@ -119,18 +156,17 @@ public class CustomerView {
         }
     }
 
-    private void wantToBuyQuetion() {
-        System.out.println("Bạn muốn mua hàng: (y/n?)");
-        String wantToBuy = sc.nextLine();
-        buyProductHandle(wantToBuy);
-    }
 
     private void cartChoiceHanlde(List<BillElement> cart, int cartChoice) {
         switch (cartChoice) {
             case 1:{
                 System.out.println("Nhập id sản phẩm không muốn mua nữa: ");
                 String id = sc.nextLine();
-                if(deleteCartElemnt(cart, id)){
+                int index = findIndexById(cart, id);
+                if(index!=-1){
+                    int quantity = -1*(user.getCart().get(index).getQuantity());
+                    changeInStockProduct(user.getCart().get(index).getProduct(),quantity);
+                    cart.remove(index);
                     System.out.println("Đã xoá");
                 }else {
                     System.out.println("Không tìm thấy sản phẩm này!");
@@ -161,14 +197,10 @@ public class CustomerView {
         }
     }
 
-    private boolean deleteCartElemnt(List<BillElement> cart, String id) {
-        for(BillElement i: cart) {
-            if(i.getProduct().getId().equals(id)) {
-                cart.remove(i);
-                return true;
-            }
-        }
-        return false;
+    private void wantToBuyQuetion() {
+        System.out.println("Bạn muốn mua hàng: (y/n?)");
+        String wantToBuy = sc.nextLine();
+        buyProductHandle(wantToBuy);
     }
 
     public int findIndexById(List<BillElement> billElements,String id) {
@@ -187,9 +219,17 @@ public class CustomerView {
                 System.out.println("Chọn sản phẩm muốn thêm vào giỏ hàng(Id): ");
                 String id = sc.nextLine();
                 int index = productManagement.findById(id);
-                int inStock = productManagement.getProductList().get(index).getInStock();
-                if(inStock ==0) {
+                int inStock = 0;
+                try{
+                     inStock = productManagement.getProductList().get(index).getInStock();
+                }catch (ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Bạn nhập id không đúng!");
+                    break;
+                }
+
+                if(inStock == 0) {
                     System.out.println("Sản phẩm đã hết hàng!");
+                    break;
                 }
                 if(index<0) {
                     System.out.println("Không có sản phẩm này!");
@@ -198,21 +238,24 @@ public class CustomerView {
                 System.out.println("Nhập số lượng muốn mua: ");
                 int quantity = sc.nextInt();
                 sc.nextLine();
-                if(quantity>inStock) {
-                    System.out.println("Sản phầm chỉ còn " + inStock + " sản phẩm!");
-                }
-                if(quantity ==0) {
+                if(quantity <=0) {
+                    System.out.println("Số lượng không đúng!");
                     break;
                 }
-                Product chosenProduct =  productManagement.getProductList().get(index);
-                BillElement bl = duplicateBillElement(user.getCart(), chosenProduct);
-                if(bl==null){
-                    BillElement cart = new BillElement(chosenProduct,quantity);
-                    user.getCart().add(cart);
+                if(quantity>inStock) {
+                    System.out.println("Sản phầm chỉ còn " + inStock + " sản phẩm!");
                 }else {
-                    bl.setQuantity(bl.getQuantity()+quantity);
+                    changeInStockProduct(productList.get(index),quantity);
+                    Product chosenProduct =  productManagement.getProductList().get(index);
+                    BillElement bl = duplicateBillElement(user.getCart(), chosenProduct);
+                    if(bl==null){
+                        BillElement cart = new BillElement(chosenProduct,quantity);
+                        user.getCart().add(cart);
+                    }else {
+                        bl.setQuantity(bl.getQuantity()+quantity);
+                    }
+                    System.out.println("Đã thêm vào giỏ hàng!");
                 }
-                System.out.println("Đã thêm vào giỏ hàng!");
                 System.out.println("Tiếp tục mua hàng?(Y/N)");
                 isContinue = sc.nextLine();
                 if(isContinue.toLowerCase(Locale.ROOT).equals("y")){
@@ -229,10 +272,12 @@ public class CustomerView {
         System.out.println("....MENU MUA SẮM....");
         System.out.println("1. Xem danh sách tất cả sản phẩm.");
         System.out.println("2. Xem sản phẩm theo danh mục.");
-        System.out.println("3. Tìm kiếm sản phẩm theo tên(gần đúng).");
-        System.out.println("4. Giỏ hàng");
-        System.out.println("5. Thanh toán sản phẩm trong giỏ hàng.");
-        System.out.println("6. Xem sản phẩm đã mua.");
+        System.out.println("3. Xem sản phẩm bán chạy");
+        System.out.println("4. Tìm kiếm sản phẩm theo tên(gần đúng).");
+        System.out.println("5. Giỏ hàng");
+        System.out.println("6. Thanh toán sản phẩm trong giỏ hàng.");
+        System.out.println("7. Xem sản phẩm đã mua.");
+        System.out.println("8. Sửa thông tin cá nhân.");
         System.out.println("0. Đăng xuất.");
         System.out.println("Nhập lựa chọn: ");
     }
@@ -243,5 +288,87 @@ public class CustomerView {
             }
         }
         return null;
+    }
+
+    private String getUserEmail() {
+        Matcher matcher;
+        String email;
+        do{
+            System.out.println("Nhập email: ");
+            email = sc.nextLine();
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
+            matcher = pattern.matcher(email);
+            if(!matcher.matches()) {
+                System.err.println("Email không đúng định dạng!(abc@gmail.com.vn)");
+            }
+        }while(!matcher.matches());
+        return email;
+    }
+
+    private String getUserBirthDay() {
+        Matcher matcher ;
+        String birthday;
+        do{
+            System.out.println("Nhập ngày sinh: ");
+            birthday = sc.nextLine();
+            Pattern pattern = Pattern.compile("^\\d{1,2}[-|/]\\d{1,2}[-|/]\\d{4}$");
+            matcher = pattern.matcher(birthday);
+            if(!matcher.matches()) {
+                System.err.println("Ngày sinh không đúng định dạng!(dd/mm/yyyy)");;
+            }
+        }while(!matcher.matches());
+        return birthday;
+    }
+
+    private String getUserSex() {
+        String sex;
+        do{
+            System.out.println("Nhập giới tính: ");
+            sex = sc.nextLine();
+            if(!sex.equals("male") && !sex.equals("female")){
+                System.err.println("Giới tính là male hoặc female");
+            }
+        }while(!sex.equals("male") && !sex.equals("female"));
+        return sex;
+    }
+
+    private String getNameUser() {
+        String name;
+        do{
+            System.out.println("Nhập tên người dùng: ");
+            name = sc.nextLine();
+            if(name.equals("")) {
+                System.err.println("Bạn phải nhập tên!");
+            }
+        }while(name.equals(""));
+        return name;
+    }
+
+
+    private String getPassword() {
+        Matcher matcher;
+        String password ;
+        do{
+            System.out.println("Nhập mật khẩu: ");
+            password = sc.nextLine();
+            Pattern pattern = Pattern.compile("^\\w{3,}");
+            matcher = pattern.matcher(password);
+        }while(!matcher.matches());
+        return password;
+    }
+
+    public void changeSoldProduct(int index, int quantity) {
+        int sold = productList.get(index).getSold();
+        productManagement.getProductList().get(index).setSold(sold+quantity);
+    }
+    public void changeInStockProduct(Product product, int quantity){
+        if(quantity>0) {
+            int inStock = product.getInStock();
+            product.setInStock(inStock - quantity);
+        }
+        else {
+            int newQuantity = -quantity;
+            product.setInStock(newQuantity);
+        }
     }
 }

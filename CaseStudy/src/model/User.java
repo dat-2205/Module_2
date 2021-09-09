@@ -159,16 +159,29 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return  " + Id người dùng: " + id + '\n' +
-                " + Username: " + username + '\n' +
-                " + Password: " + password + '\n' +
-                " + Quyền sử dùng: " + role + '\n' +
-                " + Tên người dùng: " + name + '\n' +
-                " + Giới tính: " + sex + '\n' +
-                " + Sinh nhật: " + birthday + '\n' +
-                " + Email: " + email + '\n' +
-                " + Ngày lập tài khoản: " + dateCreate + '\n' +
-                " + Giỏ hàng: " + showCart() + "\n"+
-                " + Đã mua: " + getBillToString();
+        if(role.equals("customer")) {
+            return  " + Id người dùng: " + id + '\n' +
+                    " + Username: " + username + '\n' +
+                    " + Password: " + password + '\n' +
+                    " + Quyền sử dùng: " + role + '\n' +
+                    " + Tên người dùng: " + name + '\n' +
+                    " + Giới tính: " + sex + '\n' +
+                    " + Sinh nhật: " + birthday + '\n' +
+                    " + Email: " + email + '\n' +
+                    " + Ngày lập tài khoản: " + dateCreate + '\n' +
+                    " + Giỏ hàng: " + showCart() + "\n"+
+                    " + Đã mua: " + getBillToString();
+        }
+        else {
+            return " + Id người dùng: " + id + '\n' +
+                    " + Username: " + username + '\n' +
+                    " + Password: " + password + '\n' +
+                    " + Quyền sử dùng: " + role + '\n' +
+                    " + Tên người dùng: " + name + '\n' +
+                    " + Giới tính: " + sex + '\n' +
+                    " + Sinh nhật: " + birthday + '\n' +
+                    " + Email: " + email + '\n' +
+                    " + Ngày lập tài khoản: " + dateCreate + '\n';
+        }
     }
 }

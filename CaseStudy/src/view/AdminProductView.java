@@ -24,7 +24,7 @@ public class AdminProductView {
 
     private void menu() {
         int choice;
-        getProductFromFile();
+//        getProductFromFile();
         do{
             displayMenu();
             choice = sc.nextInt();
@@ -96,6 +96,10 @@ public class AdminProductView {
                 int sortChoice = sc.nextInt();
                 sc.nextLine();
                 sortChoiceHandle(sortChoice);
+                break;
+            }
+            case 8:{
+                productManagement.showHotProduct();
                 break;
             }
         }
@@ -177,6 +181,7 @@ public class AdminProductView {
         System.out.println("5. Xem tât cả sản phẩm.");
         System.out.println("6. Xem sản phẩm theo danh mục.");
         System.out.println("7. Sắp xếp sản phẩm.");
+        System.out.println("8. Các sản phẩm bán chạy.");
         System.out.println("Nhập lựa chọn: ");
     }
 

@@ -46,13 +46,39 @@ public class UserManagement implements ManagementInterface<User>{
 
     @Override
     public void showAll() {
+        int count1=1;
+        int count2=1;
         for(int i=0;i<userList.size();i++) {
             if(userList.get(i).getRole().equals("admin")){
-                System.out.println("Quản trị viên " + (i+1));
+                System.out.println("Quản trị viên " + count1 );
+                count1++;
             }else {
-                System.out.println("Khách hàng " + (i+1));
+                System.out.println("Khách hàng " + count2);
+                count2++;
             }
             System.out.println(userList.get(i) + "\n");
+        }
+    }
+
+    public void showAllAdmin() {
+        int count1=1;
+        for(int i=0;i<userList.size();i++) {
+            if(userList.get(i).getRole().equals("admin")){
+                System.out.println("Quản trị viên " + count1 );
+                count1++;
+                System.out.println(userList.get(i) + "\n");
+            }
+        }
+    }
+
+    public void showAllCustomer() {
+        int count1=1;
+        for(int i=0;i<userList.size();i++) {
+            if(userList.get(i).getRole().equals("customer")){
+                System.out.println("Khách hàng " + count1 );
+                count1++;
+                System.out.println(userList.get(i) + "\n");
+            }
         }
     }
 
@@ -74,11 +100,11 @@ public class UserManagement implements ManagementInterface<User>{
         return -1;
     }
 
-    public void writeToFile(List<Product> productList, String path) {
+    public void writeToFile(List<User> userList, String path) {
         try {
             FileOutputStream fos = new FileOutputStream(path);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(productList);
+            oos.writeObject(userList);
             oos.close();
             fos.close();
         } catch (IOException e) {

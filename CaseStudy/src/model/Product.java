@@ -9,6 +9,7 @@ public class Product implements Serializable {
     private double price;
     private String kindOf;
     private int inStock;
+    private int sold;
 
     public Product() {
     }
@@ -70,6 +71,14 @@ public class Product implements Serializable {
         this.inStock = inStock;
     }
 
+    public int getSold() {
+        return sold;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+
     @Override
     public String toString() {
         return  " + Id sản phẩm:  " + id +
@@ -77,6 +86,7 @@ public class Product implements Serializable {
                 " |  Mô tả:  " + productInformation +
                 " | Giá: " + price +
                 " |  Danh mục: " + kindOf +
-                " | Số lượng trong kho: " + inStock;
+                " | Số lượng trong kho: " + inStock +
+                " | Đã bán: " + sold;
     }
 }

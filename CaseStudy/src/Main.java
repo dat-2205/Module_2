@@ -1,9 +1,5 @@
-import model.Product;
-import model.User;
-import view.LoginView;
 
-import java.util.ArrayList;
-import java.util.List;
+import view.LoginView;
 
 public class Main {
     public static void main(String[] args) {

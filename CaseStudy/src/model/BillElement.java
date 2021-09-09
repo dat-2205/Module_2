@@ -32,6 +32,6 @@ public class BillElement {
                 " |  Mô tả:  " + product.getProductInformation() +
                 " | Giá: " + product.getPrice() +
                 " |  Danh mục: " + product.getKindOf() + "\n" +
-                " + Số lượng: " + quantity;
+                "  -Số lượng: " + quantity;
     }
 }
