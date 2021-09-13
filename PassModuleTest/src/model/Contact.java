@@ -89,12 +89,12 @@ public class Contact implements Serializable {
 
     @Override
     public String toString() {
-        return  "Tên Liên Hệ: " + name + '\'' +
-                " | Số điện thoại: " + phoneNumber + '\'' +
-                " | Email: " + email + '\'' +
-                " | Facebook: " + facebook + '\'' +
-                " | Giới tính: " + gender + '\'' +
-                " | Sinh nhật: " + birthday + '\'' +
-                " | Người này thuộc: " + relationship + '\'';
+        return  " Tên Liên Hệ: " + name  +
+                " | Số điện thoại: " + phoneNumber  +
+                " | Email: " + email  +
+                " | Facebook: " + facebook +
+                " | Giới tính: " + gender  +
+                " | Sinh nhật: " + birthday  +
+                " | Người này thuộc: " + relationship;
     }
 }
